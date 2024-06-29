@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <div class="hamburger-menu" onclick="toggleMenu()">
+        &#9776;
+    </div>
+    <div class="menu-content">
+
+    </div>
+    <script>
+function secureStart() {
+    if (!localStorage.getItem('gameStats')) {
+        const defaultStats = {"tntSpeed":1,"tntKillChance":0.05,"tntSpawnRate":1,"materialAmount":3,"materialQuality":1,"respawnRate":1};
+        localStorage.setItem('gameStats', JSON.stringify(defaultStats));
+    }
+    const savedStats = JSON.parse(localStorage.getItem('gameStats'));
+}
+        //MARK Hamburger Menu
+        function toggleMenu() {
+            const menuContent = document.querySelector('.menu-content');
+            menuContent.classList.toggle('show');
+            menuContent.innerHTML = '';
+            if (menuContent.classList.contains('show')) {
+                updateMenuContent();
+                const intervalId = setInterval(() => {
+                    if (!menuContent.classList.contains('show')) {
+                        clearInterval(intervalId);
+                        return;
+                    }
+                    updateMenuContent();
+                }, 1000);
+            }
+        }
+
+        function updateMenuContent() {
+            const menuContent = document.querySelector('.menu-content');
+            menuContent.innerHTML = '';
+
+            console.log('Reloading menu content');
+
+            const savedStats = JSON.parse(localStorage.getItem('gameStats'));
+            if (savedStats) {
+                createElement('p', `TNT Speed: ${savedStats.tntSpeed}`);
+                createElement('p', `TNT Kill Chance: ${savedStats.tntKillChance}`);
+                createElement('p', `TNT Spawn Rate: ${savedStats.tntSpawnRate}`);
+                createElement('p', `Amount of Material: ${savedStats.materialAmount}`);
+                createElement('p', `Material Quality: ${savedStats.materialQuality}`);
+                createElement('p', `Material Respawn Rate: ${savedStats.respawnRate}`);
+            }
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete ALL my Data';
+            deleteButton.classList.add('delete-data-btn');
+            deleteButton.addEventListener('click', function() {
+                localStorage.removeItem('gameStats'); 
+                menuContent.innerHTML = '';
+                console.log('Data deleted');
+            });
+            menuContent.appendChild(deleteButton); 
+        }
+
+        function createElement(tagName, text) {
+            const element = document.createElement(tagName);
+            element.textContent = text;
+            element.classList.add('menu-item'); 
+            document.querySelector('.menu-content').appendChild(element); 
+        }
+    </script>
+    <style>
+        html, body {
+            height: 100%; 
+            margin: 0; 
+        }
+        body {
+            background: linear-gradient(to top right, rgb(52, 33, 223), rgb(0, 155, 0));
+            display: flex; 
+            justify-content: center;
+            align-items: center; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            position: relative;
+            overflow: hidden;
+        }
+        .image-pile img {
+            width: 100px;
+            position: absolute;
+            transition: transform 0.5s ease;
+        }
+        .image-pile {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        video {
+            position: relative;
+            top: 0;
+            width: 100%; /* Adjust as needed */
+            height: 100%; /* Adjust as needed */
+            mix-blend-mode: screen; /* Key property for removing green */
+            z-index: 1; /* Ensure it's above the images */
+            left: -10px;
+        }
+        @keyframes fall {
+            from {
+                transform: translateY(-1000px); /* Start above the video */
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0); /* End at the video's top */
+                opacity: 1;
+            }
+        }
+        @keyframes die {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+                transform: translate(0, 0);
+            }
+        }
+        @keyframes flyAway {
+            to {
+                transform: translate(var(--x), var(--y)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+
+        .version-container {
+            position: fixed; /* Fixed positioning relative to the viewport */
+            bottom: -20px; /* Align to the bottom */
+            right: 0; /* Align to the right */
+            margin: 10px; /* Add some margin */
+        }
+        .falling-image {
+            position: relative;
+            top: -500;
+            left: calc(50% - 50px);
+            transform: translateX(-50px) translateY(-500px); /* Move to the left and lower */
+            animation: fall 2.95s forwards;
+        }
+        .dying-image {
+            animation: die 2s forwards;
+        }
+        .flying-image {
+            animation: flyAway 2s forwards;
+        }
+        .coin-counter {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: gold;
+            font-family: 'Arial Black', sans-serif;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            border: 2px solid gold;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+        }
+        .upgrade-buttons {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+                .current {
+            position: absolute;
+            top: 7%;
+            margin: 10px;
+        }
+        .upgrade-button {
+            font-size: 16px;
+            color: white;
+            font-family: 'Arial Black', sans-serif;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            border: 2px solid; /* Default border */
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            width: 500px;
+            user-select: none;
+        }
+        .tnt-speed, .explosion-chance, .spawn-rate, .material-amount, .material-quality, .respawn-rate {
+            position: relative; 
+            border: none;
+        }
+
+        .tnt-speed::after, .explosion-chance::after, .spawn-rate::after, .material-amount::after, .material-quality::after, .respawn-rate::after,
+        .tnt-speed::before, .explosion-chance::before, .spawn-rate::before, .material-amount::before, .material-quality::before, .respawn-rate::before {
+            position: absolute; 
+            left: 0%;
+            width: 100%;
+            height: 104%;
+            border-radius: 1vh;
+            background-color: none;
+            z-index: -1;
+            transform: scale(1.01);
+            content: '';
+        }
+        
+        .tnt-speed::after { background-image: linear-gradient(to bottom right, rgb(168, 196, 255), rgb(80, 80, 80)); }
+        .explosion-chance::after { background-image: linear-gradient(to bottom right, rgb(255, 0, 149), rgb(39, 39, 39)); }
+        .spawn-rate::after { background-image: linear-gradient(to bottom right, rgb(247, 78, 0), rgb(0, 128, 17)); }
+        .material-amount::after { background-image: linear-gradient(to bottom right, rgb(0, 174, 255), green); }
+        .material-quality::after { background-image: linear-gradient(to bottom right, rgb(255, 208, 0), rgb(68, 43, 22)); }
+        .respawn-rate::after { background-image: linear-gradient(to bottom right, rgb(4, 224, 4), rgb(22, 68, 37)); }
+
+        .tnt-speed::before { content: '⬆️'; color: red; }
+        .explosion-chance::before { content: '💥'; color: red; }
+        .spawn-rate::before { content: '⚡'; color: red; }
+        .material-amount::before { content: '📦'; color: red; }
+        .material-quality::before { content: '⭐'; color: red; }
+        .respawn-rate::before { content: '🔄'; color: red; }
+
+        .upgrade-description {
+            display: flex;
+            flex-direction: row; /* Arrange description content in a row */
+            align-items: center; /* Center align items */
+            justify-content: space-between; /* Space between the name and stats */
+            width: 100%;
+            padding-left: 20px; /* Add space between button icon and description */
+        }
+        .upgrade-name {
+            flex: 1; /* Take up as much space as possible */
+            padding-right: 20px; /* Add space between name and stats */
+        }
+        .upgrade-stats {
+            text-align: right; /* Align stats to the right */
+        }
+        .hamburger-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .menu-content {
+            display: none;
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            background-color: rgb(39, 32, 32);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            padding: 20px;
+            z-index: 99;
+            width: 400px;
+            height: 800px;
+        }
+        .delete-data-btn {
+        position: absolute;
+        bottom: 20px;
+        left: 20px; /* Adjust based on your layout */
+        padding: 10px 20px;
+        background-image: linear-gradient(to bottom right, rgb(224, 4, 4), rgb(255, 123, 0), rgb(251, 255, 0));
+        border: none;
+        cursor: pointer;
+        border-radius: 10px;
+        color: white;
+    }
+        .menu-content.show {
+            display: block;
+        }  
+        .upgrade-description-text {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center; /* Center the content horizontally */
+    width: 100%;
+    padding-left: 20px;
+    text-align: center; /* Center the text within each flex item */
+}
+    </style>
+</head>
+<body>
+<!-- MARK: Upgrade Buttons -->
+    <div id="CoinDisplay" class="coin-counter">All-Time Coins: 0</div>
+    <div id="CurrentCoinDisplay" class="coin-counter current">Coins: 0</div>
+    <div id="imagePile" class="image-pile"></div>
+    <div class="upgrade-buttons">
+        <div class="upgrade-button tnt-speed" id="tnt-speed">
+            <div class="upgrade-description">
+                <div class="upgrade-name">
+                    <span class="upgrade-description-text">TNT Speed</span>
+                    <div class="upgrade-description-text"></divclass> style="margin-left: 0px;">Cost:</div>
+                </div>
+                <div class="upgrade-stats">
+                    <div class="upgrade-description-text">Stat1:</div> 
+                    <div class="upgrade-description-text">Stat2:</div>
+                    <div class="upgrade-description-text">Stat3:</div>
+                </div>
+            </div>
+        </div>
+        <div class="upgrade-button explosion-chance" id="explosion-chance">
+            <div class="upgrade-description-text">
+                <div class="upgrade-name">
+                    <span class="upgrade-description-text">TNT Explosion Kill Chance</span>
+                    <div class="upgrade-description-text"> style="margin-left: 0px;">Cost:</div>
+                </div>
+                <div class="upgrade-stats">
+                    <div class="upgrade-description-text">Stat1:</div>
+                    <div class="upgrade-description-text">Stat2:</div>
+                    <div class="upgrade-description-text">Stat3:</div>
+                </div>
+            </div>
+        </div>
+        <div class="upgrade-button spawn-rate" id="spawn-rate">
+            <div class="upgrade-description">
+                <div class="upgrade-name">
+                    <span class="upgrade-description-text">TNT Spawn Rate</span>
+                    <div class="upgrade-description-text"> style="margin-left: 0px;">Cost:</div>
+                </div>
+                <div class="upgrade-stats">
+                    <div class="upgrade-description-text">Stat1:</div>
+                    <div class="upgrade-description-text">Stat2:</div>
+                    <div class="upgrade-description-text">Stat3:</div>
+                </div>
+            </div>
+        </div>
+        <div class="upgrade-button material-amount" id="material-amount">
+            <div class="upgrade-description">
+                <div class="upgrade-name">
+                    <span class="upgrade-description-text">Amount of Material</span>
+                    <div class="upgrade-description-text"> style="margin-left: 0px;">Cost:</div>
+                </div>
+                <div class="upgrade-stats">
+                    <div class="upgrade-description-text">Stat1:</div>
+                    <div class="upgrade-description-text">Stat2:</div>
+                    <div class="upgrade-description-text">Stat3:</div>
+                </div>
+            </div>
+        </div>
+        <div class="upgrade-button material-quality" id="material-quality">
+            <div class="upgrade-description">
+                <div class="upgrade-name">
+                    <span class="upgrade-description-text">Material Quality</span>
+                    <div class="upgrade-description-text"> style="margin-left: 0px;">Cost:</div>
+                </div>
+                <div class="upgrade-stats">
+                    <div class="upgrade-description-text">Stat1: </div>
+                    <div class="upgrade-description-text">Stat2:</div>
+                    <div class="upgrade-description-text">Stat3:</div>
+                </div>
+            </div>
+        </div>
+        <div class="upgrade-button respawn-rate" id="respawn-rate">
+            <div class="upgrade-description">
+                <div class="upgrade-name">
+                    <span class="upgrade-description-text">Material Respawn Rate</span>
+                    <div class="upgrade-description-text">style="margin-left: 0px;">Cost:</div>
+                </div>
+                <div class="upgrade-stats">
+                    <div class="upgrade-description-text">Stat1:</div>
+                    <div class="upgrade-description-text">Stat2:</div>
+                    <div class="upgrade-description-text">Stat3:</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { upgrades } from './upgradeCost.js';
+    
+        let tntSpeed = 1;
+        let tntKillChance = 0.05;
+        let tntSpawnRate = 1;
+        let materialAmount = 3;
+        let materialQuality = 1;
+        let respawnRate = 1;
+        const upgradesPurchased = {};
+    
+//change later
+            localStorage.setItem('currentCoins', '120000');
+    
+        function applyUpgradeEffects(upgradeId, upgradeIndex) {
+            const upgradeEffects = upgrades[upgradeId][upgradeIndex];
+            if (!upgradeEffects) return;
+    
+            for (const effect in upgradeEffects) {
+                let effectValue = upgradeEffects[effect];
+    
+                switch (effect) {
+                    case 'tntSpeed':
+                        tntSpeed = Number((tntSpeed + effectValue).toFixed(4));
+                        break;
+                    case 'tntKillChance':
+                        tntKillChance = Number((tntKillChance + effectValue).toFixed(4));
+                        break;
+                    case 'tntSpawnRate':
+                        tntSpawnRate = Number((tntSpawnRate + effectValue).toFixed(4));
+                        break;
+                    case 'materialAmount':
+                        materialAmount = Number((materialAmount + effectValue).toFixed(4));
+                        break;
+                    case 'materialQuality':
+                        materialQuality = Number((materialQuality + effectValue).toFixed(4));
+                        break;
+                    case 'respawnRate':
+                        respawnRate = Number((respawnRate + effectValue).toFixed(4));
+                        break;
+                }
+            }
+        }
+    
+        function updateUpgradeDetails() {
+            const upgradeButtons = document.querySelectorAll('.upgrade-button');
+            upgradeButtons.forEach(button => {
+                const upgradeId = button.id;
+                const upgradeData = upgrades[upgradeId];
+    
+                if (!upgradeData) return;
+    
+                let currentUpgradesPurchased = upgradesPurchased[upgradeId] || 0;
+    
+                function updateButtonContent(upgradeIndex) {
+                    const currentUpgrade = upgradeData[upgradeIndex];
+    
+                    const upgradeCostDiv = button.querySelector('.upgrade-name div');
+                    upgradeCostDiv.textContent = `Cost: ${currentUpgrade.cost}`;
+    
+                    const upgradeStats = button.querySelectorAll('.upgrade-stats div');
+                    upgradeStats.forEach((statDiv, index) => {
+                        const statKey = Object.keys(currentUpgrade)[index + 1];
+    
+                        if (statKey) {
+                            const value = currentUpgrade[statKey];
+                            const formattedValue = value < 0 ? value : `+${value}`;
+    
+                            const statName = statKey.charAt(0).toUpperCase() + statKey.slice(1).replace(/([A-Z])/g, ' $1').trim();
+    
+                            statDiv.textContent = `${statName}: ${formattedValue}`;
+                        }
+                    });
+                }
+    
+                updateButtonContent(currentUpgradesPurchased);
+    
+                button.addEventListener('click', () => {
+                    const currentCoins = Number(localStorage.getItem('currentCoins')) || 0;
+                    const upgradeCost = upgradeData[currentUpgradesPurchased].cost;
+    
+                    if (currentCoins < upgradeCost) {
+                        alert('Not enough coins to purchase this upgrade.');
+                        return; // Prevent further execution if not enough coins
+                    }
+    
+                    // Deduct the upgrade cost from the currentCoins
+                    localStorage.setItem('currentCoins', currentCoins - upgradeCost);
+    
+                    upgradesPurchased[upgradeId] = currentUpgradesPurchased;
+                    applyUpgradeEffects(upgradeId, currentUpgradesPurchased);
+                    currentUpgradesPurchased++;
+                    updateButtonContent(currentUpgradesPurchased);
+    
+                    // Update the coin display after purchasing the upgrade
+                    document.getElementById('CurrentCoinDisplay').textContent = `Coins: ${localStorage.getItem('currentCoins')}`;
+                });
+            });
+        }
+    
+        function saveCurrentStats() {
+            const stats = {
+                tntSpeed: tntSpeed,
+                tntKillChance: tntKillChance,
+                tntSpawnRate: tntSpawnRate,
+                materialAmount: materialAmount,
+                materialQuality: materialQuality,
+                respawnRate: respawnRate
+            };
+            localStorage.setItem('gameStats', JSON.stringify(stats));
+        }
+    
+        // Function to increment currentCoins and all-time Coins
+        function incrementCoins(amount) {
+            const currentCoins = Number(localStorage.getItem('currentCoins')) || 0;
+            const allTimeCoins = Number(localStorage.getItem('Coins')) || 0;
+            localStorage.setItem('currentCoins', currentCoins + amount);
+            localStorage.setItem('Coins', allTimeCoins + amount);
+    
+            // Update the coin display after incrementing coins
+            document.getElementById('CurrentCoinDisplay').textContent = `Coins: ${currentCoins + amount}`;
+        }
+    
+        // Call incrementCoins whenever coins are added
+        document.addEventListener('addCoin', (event) => {
+            const amount = event.detail.amount;
+            incrementCoins(amount);
+        });
+    
+        // Example function to simulate adding coins
+        function addCoins(amount) {
+            const event = new CustomEvent('addCoin', { detail: { amount } });
+            document.dispatchEvent(event);
+        }
+    
+        //MARK: Hamburger Menu functionality
+        function toggleMenu() {
+            const menuContent = document.querySelector('.menu-content');
+            if (!menuContent.classList.contains('show')) {
+                const stats = JSON.parse(localStorage.getItem('gameStats')) || {};
+                menuContent.innerHTML = `
+                    <p>TNT Speed: ${stats.tntSpeed || 'N/A'}</p>
+                    <p>TNT Explosion Kill Chance: ${stats.tntKillChance || 'N/A'}</p>
+                    <p>TNT Spawn Rate: ${stats.tntSpawnRate || 'N/A'}</p>
+                    <p>Material To Blow Up: ${stats.materialAmount || 'N/A'}</p>
+                    <p>Material Quality: ${stats.materialQuality || 'N/A'}</p>
+                    <p>Material Respawn Rate: ${stats.respawnRate || 'N/A'}</p>
+                    <p>Current Coins: ${localStorage.getItem('currentCoins') || '0'}</p>
+                    <p>All-Time Coins: ${localStorage.getItem('Coins') || '0'}</p>
+                `;
+            }
+        }
+    
+        document.addEventListener('click', function(event) {
+            if (event.target.matches('.hamburger-menu, .upgrade-button, .upgrade-description, .upgrade-description-text')) {
+                console.log('Hi');
+                const stats = {
+                    tntSpeed: tntSpeed,
+                    tntKillChance: tntKillChance,
+                    tntSpawnRate: tntSpawnRate,
+                    materialAmount: materialAmount,
+                    materialQuality: materialQuality,
+                    respawnRate: respawnRate
+                };
+                localStorage.setItem('gameStats', JSON.stringify(stats));
+                saveCurrentStats();
+            }
+        });
+    
+        // Change this later
+        setInterval(() => {
+            const currentCoins = Number(localStorage.getItem('currentCoins')) || 0;
+            document.getElementById('CurrentCoinDisplay').textContent = `Coins: ${currentCoins}`;
+        }, 100);
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUpgradeDetails();
+        });
+    </script>
+    
+        
+
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+        //MARK: Explosion function 
+        let Coin = 0;
+const imageLinks = ["./textures/oak_planks.png"];
+const ExplLink = "./1.mp4";
+
+function displayImages() {
+    const container = document.getElementById("imagePile");
+    const spread = 80;
+    const leftShift = 0;
+
+    function updateImages() {
+        const gameStats = JSON.parse(localStorage.getItem("gameStats"));
+        const requiredImagesCount = gameStats && gameStats.materialAmount ? Math.round(gameStats.materialAmount) : 3;
+        const currentImagesCount = container.getElementsByTagName("img").length;
+
+        // Calculate how many new images need to be added
+        const imagesToAdd = requiredImagesCount - currentImagesCount;
+
+        if (imagesToAdd > 0) {
+            for (let i = 0; i < imagesToAdd; i++) {
+                const img = document.createElement("img");
+                const linkIndex = (currentImagesCount + i) % imageLinks.length;
+                img.src = imageLinks[linkIndex];
+                const rotation = Math.random() * 360;
+                const xPosition = (Math.random() - 0.5) * spread - leftShift;
+                const yPosition = (Math.random() - 0.5) * spread;
+                img.style.transform = `translate(${xPosition}px, ${yPosition}px) rotate(${rotation}deg)`;
+                container.appendChild(img);
+            }
+        } else if (imagesToAdd < 0) {
+            for (let i = 0; i < Math.abs(imagesToAdd); i++) {
+                container.removeChild(container.lastChild);
+            }
+        }
+    }
+            const videoHTML = `<video id="explVideo" muted="muted" playsinline style="width: 2000px; height: auto; left: -${leftShift}px; pointer-events: none;">
+                        <source src="${ExplLink}" type="video/mp4">
+                    </video>`;
+                    container.insertAdjacentHTML('beforeend', videoHTML);
+
+
+        const TNT = document.createElement("img");
+            TNT.src = "./textures/TNT.png";
+            TNT.className = "textures/falling-image";
+            TNT.style.zIndex = 10;
+            container.insertBefore(TNT, container.lastChild);
+
+
+            function startAnimation() {
+                TNT.style.animation = 'none';
+                TNT.offsetHeight;
+                TNT.style.animation = 'fall 2.95s forwards';
+
+        let currentTime = 0;
+        let isTNTOnFire = false;
+
+                const interval = setInterval(() => {
+                    currentTime += 0.05;
+                    if ((currentTime >= 0.15 && currentTime < 0.45) || (currentTime >= 0.55 && currentTime < 0.75) || (currentTime >= 1.35 && currentTime < 1.55) || (currentTime >= 2.15 && currentTime < 2.35)) {
+                        if (!isTNTOnFire) {
+                            TNT.src = "./textures/TNTonFire.png";
+                            isTNTOnFire = true;
+                        }
+                    } else if ((currentTime >= 0.95 && currentTime < 1.25) || (currentTime >= 1.75 && currentTime < 2.05) || (currentTime >= 2.55 && currentTime < 2.95)) {
+                        if (isTNTOnFire) {
+                            TNT.src = "./textures/TNT.png";
+                            isTNTOnFire = false;
+                        }
+                    } else if (currentTime >= 3) {
+                        clearInterval(interval);
+                        TNT.src = "./textures/TNT.png";
+                        isTNTOnFire = false;
+                        const video = document.getElementById("explVideo");
+                        video.currentTime = 0;
+                        video.play();
+                        video.onplay = () => {
+                            const imgs = container.querySelectorAll('img:not(.falling-image)');
+                            imgs.forEach(img => {
+                                const gameStats = JSON.parse(localStorage.getItem("gameStats"));
+                                if (Math.random() < gameStats.tntKillChance) {
+                                    Coin++;
+                                    currentCoins = Number(localStorage.getItem('currentCoins')) || 0;
+                                    currentCoins += 1;
+                                    localStorage.setItem('currentCoins', currentCoins.toString()); 
+                                    document.getElementById('CoinDisplay').textContent = `All-Time Coins: ${Coin}`;
+                                    localStorage.setItem('Coin', Coin.toString());
+
+                                    const randomX = (Math.random() - 0.5) * 500; 
+                                    const randomY = (Math.random() - 0.5) * 500; 
+                                    img.style.setProperty('--x', `${randomX}px`);
+                                    img.style.setProperty('--y', `${randomY}px`);
+                                    img.classList.add('flying-image');
+                                    setTimeout(() => {
+                                        img.classList.remove('flying-image');
+                                        img.style.transform = `translate(${(Math.random() - 0.5) * spread - leftShift}px, ${(Math.random() - 0.5) * spread}px) rotate(${Math.random() * 360}deg)`;
+                                }, 2000);
+                            }
+                            });
+                        };
+                    }
+                }, 50);
+            }
+
+    updateImages();
+
+    startAnimation(TNT);
+
+    setInterval(() => {
+        updateImages();
+        startAnimation(TNT);
+    }, 3200);
+}
+
+displayImages();
+
+    </script>
+<div class="version-container">
+    <p>v0.0.11</p>
+</div>
+</body>
+</html>
